@@ -1,0 +1,8 @@
+*pyc
+*html
+*htm
+*.txt
+bin/
+*pyo
+*log
+*.log.*
