@@ -2,6 +2,7 @@
 from proxypool import ProxyPool
 from urlpool import *
 from xcrawler import XCrawler
+import encoding
 
 __title__ = 'ezmysql'
 __version__ = "1.0"
