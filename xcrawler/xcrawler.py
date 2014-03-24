@@ -1,8 +1,8 @@
 #encoding: UTF-8
 """
     a crawler framework with gevent & requests
-    MIT License
     by veelion@ebuinfo.com
+    Copyright © 2013 - 2014 Ebuinfo. All Rights Reserved.
 """
 #import sys
 #if 'threading' in sys.modules:

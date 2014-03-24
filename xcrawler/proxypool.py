@@ -1,8 +1,8 @@
 #encoding: UTF-8
 """
     select a proxy for url according its host from proxy pool
-    MIT License
     by veelion@ebuinfo.com
+    Copyright © 2013 - 2014 Ebuinfo. All Rights Reserved.
 """
 
 import urlparse

@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 #encoding: UTF-8
 """
-    a crawler crossing multiple sites using gevent
-    MIT License
+    url pool to manage urls for xcrawler
     by veelion@ebuinfo.com
+    Copyright © 2013 - 2014 Ebuinfo. All Rights Reserved.
 """
 import time
 import random
