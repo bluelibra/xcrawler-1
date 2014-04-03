@@ -32,6 +32,7 @@ class UrlPool(object):
     _URL_NONE = False
     def __init__(self, urlindex_file="", urls=None,
                  load_bad_url=False,
+                 span_of_host=3,
                  is_good_link=None):
         if not urlindex_file:
             urlindex_file = 'xcrawler.url.idx'
@@ -40,6 +41,7 @@ class UrlPool(object):
             print 'no is_good_link function!!!!'
             sys.exit()
         print is_good_link
+        self.span_of_host = span_of_host
         self._urlindex = leveldb.LevelDB(urlindex_file)
         self._pool = {} # host: [urls]
         self._hosts_pop_recently = {}
@@ -148,7 +150,7 @@ class UrlPool(object):
         self._urlindex.Put(url, self._URL_TASK)
         #print 'adding: %s, url_count: %s' % (url, self.url_count,)
 
-    def pop(self, span_threshold=3):
+    def pop(self,):
         host = ''
         now = time.time()
         for h in self._pool:
@@ -156,7 +158,7 @@ class UrlPool(object):
                 host = h
                 break
             span = now - self._hosts_pop_recently[h]
-            if span > span_threshold:
+            if span > self.span_of_host:
                 host = h
                 break
         if not host and self.url_count > 300:

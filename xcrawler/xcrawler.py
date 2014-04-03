@@ -60,6 +60,7 @@ class XCrawler(object):
     '''
     def __init__(self, max_working=20, common_gap=20,
                  urlindex_file="", proxies_file=None,
+                 span_of_host=3,
                  load_bad_url=None, logfile=''):
         self.proxypool = ProxyPool(common_gap, proxies_file)
         self.urlpool = UrlPool(urlindex_file,
