@@ -148,10 +148,9 @@ class UrlPool(object):
         self._urlindex.Put(url, self._URL_TASK)
         #print 'adding: %s, url_count: %s' % (url, self.url_count,)
 
-    def pop(self,):
+    def pop(self, span_threshold=3):
         host = ''
         now = time.time()
-        span_threshold = 3
         for h in self._pool:
             if h not in self._hosts_pop_recently:
                 host = h
