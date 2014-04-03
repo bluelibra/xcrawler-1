@@ -65,6 +65,7 @@ class XCrawler(object):
         self.proxypool = ProxyPool(common_gap, proxies_file)
         self.urlpool = UrlPool(urlindex_file,
                                load_bad_url=load_bad_url,
+                               span_of_host=span_of_host,
                                is_good_link=self.is_good_link)
         self.max_working = max_working
 
