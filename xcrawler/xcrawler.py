@@ -61,6 +61,7 @@ class XCrawler(object):
     def __init__(self, max_working=20, common_gap=20,
                  urlindex_file="", proxies_file=None,
                  span_of_host=3,
+                 worker_conf_file='',
                  load_bad_url=None, logfile=''):
         self.proxypool = ProxyPool(common_gap, proxies_file)
         self.urlpool = UrlPool(urlindex_file,
@@ -68,6 +69,7 @@ class XCrawler(object):
                                span_of_host=span_of_host,
                                is_good_link=self.is_good_link)
         self.max_working = max_working
+        self.worker_conf_file = worker_conf_file
 
         self._workers = 0
         self._http_exception_code = 900
@@ -112,15 +114,8 @@ class XCrawler(object):
         self._workers -= 1
 
     def dynamic_max_working(self,):
-        now = time.localtime()
-        hour = now.tm_hour
-        wday = now.tm_wday
-        if wday >= 5 or hour > 18 or hour < 9:
-            self.max_working = 400
-        else:
-            self.max_working = 100
         try:
-            ns = open('xcrawler.max_working.conf').read(4)
+            ns = open(self.worker_conf_file).read()
             ns = int(ns)
             self.max_working = ns
         except:
