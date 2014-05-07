@@ -22,6 +22,7 @@ from gevent import spawn
 import requests
 import time
 import logging
+import traceback
 
 
 from proxypool import ProxyPool
@@ -109,7 +110,6 @@ class XCrawler(object):
                 else:
                     self.urlpool.add(url)
         except:
-            import traceback
             traceback.print_exc()
         self._workers -= 1
 
@@ -218,6 +218,7 @@ class XCrawler(object):
                 print '%sremove proxy: %s, pool size: %s%s' % (
                     BRO, str(proxy), len(self.proxypool._pool), NOR)
         except:
+            traceback.print_exc()
             html = ''
         #if status_code == 200:
         #    self.proxypool.record_proxy_state(proxy, self.proxypool.SUCCESS)
