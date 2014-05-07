@@ -97,7 +97,7 @@ def url_normalize(url, charset='utf-8'):
     fragment = quote(_clean(fragment), "~")
 
     # note care must be taken to only encode & and = characters as values
-    query = "&".join(["=".join([quote(_clean(t), "~:/?#[]@!$'()*+,;=") for t in q.split("=", 1)]) for q in query.split("&")])
+    #query = "&".join(["=".join([quote(_clean(t), "~:/?#[]@!$'()*+,;=") for t in q.split("=", 1)]) for q in query.split("&")])
 
     # Prevent dot-segments appearing in non-relative URI paths.
     if scheme in ["", "http", "https", "ftp", "file"]:
@@ -268,6 +268,8 @@ if __name__ == "__main__":
             'http://xn--e1afmkfd.xn--80akhbyknj4f/%D0%A1%D0%BB%D1%83%D0%B6%D0%B5%D0%B1%D0%BD%D0%B0%D1%8F:Search/Test',
         'http://lifehacker.com/#!5753509/hello-world-this-is-the-new-lifehacker':
             'http://lifehacker.com/?_escaped_fragment_=5753509/hello-world-this-is-the-new-lifehacker',
+        'http://list.tmall.com/search_product.htm?q=%D3%EE%D5%B0&type=p':
+            'http://list.tmall.com/search_product.htm?q=%D3%EE%D5%B0&type=p',
     }
 
     def testcase2(original, normalized):
