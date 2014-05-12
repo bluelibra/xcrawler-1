@@ -1,6 +1,6 @@
 #encoding: UTF-8
 """
-    a crawler framework with gevent & requests
+    a light framework of crawler with gevent, requests, leveldb
     by veelion@ebuinfo.com
     Copyright © 2013 - 2014 Ebuinfo. All Rights Reserved.
 """
