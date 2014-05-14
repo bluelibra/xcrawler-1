@@ -71,8 +71,9 @@ class XCrawler(object):
                                is_good_link=self.is_good_link)
         self.max_working = max_working
         self.worker_conf_file = worker_conf_file
-
         self._workers = 0
+        # you can customize your http header in init_urlpool()
+        self.headers = None
         self._http_exception_code = 900
         if logfile:
             self.logger = init_file_logger(logfile)
@@ -190,9 +191,12 @@ class XCrawler(object):
             download url to get html
             re-implement your own if need
         '''
-        headers = {
-            'User-Agent':'Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; Win64; x64; Trident/5.0)',
-        }
+        if not self.headers:
+            headers = {
+                'User-Agent':'Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; Win64; x64; Trident/5.0)',
+            }
+        else:
+            headers = self.headers
         proxy, to_sleep = self.proxypool.get(url)
         if to_sleep > 10:
             print ('url: %s, proxy: %s ,to_sleep: %s' % (url, proxy, to_sleep))
