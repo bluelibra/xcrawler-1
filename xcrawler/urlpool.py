@@ -41,6 +41,7 @@ class UrlPool(object):
             print 'no is_good_link function!!!!'
             sys.exit()
         print is_good_link
+        self.is_good_link = is_good_link
         self.span_of_host = span_of_host
         self._urlindex = leveldb.LevelDB(urlindex_file)
         self._pool = {} # host: [urls]
@@ -117,10 +118,10 @@ class UrlPool(object):
             self._404[url] = 1
 
 
-    def addmany(self, urls, is_good_link=None, always=False):
+    def addmany(self, urls, always=False):
         for url in urls:
-            if is_good_link:
-                if not is_good_link(url):
+            if self.is_good_link:
+                if not self.is_good_link(url):
                     print 'addmany(): bad url:', url
                     continue
             self.add(url, always=always)
