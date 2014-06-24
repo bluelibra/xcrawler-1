@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#encoding: UTF-8
+# encoding: UTF-8
 """
     url pool to manage urls for xcrawler
     by veelion@ebuinfo.com
@@ -33,6 +33,7 @@ class UrlPool(object):
     def __init__(self, urlindex_file="", urls=None,
                  load_bad_url=False,
                  span_of_host=3,
+                 max_in_mem=100000,
                  is_good_link=None):
         if not urlindex_file:
             urlindex_file = 'xcrawler.url.idx'
@@ -47,6 +48,8 @@ class UrlPool(object):
         self._pool = {} # host: [urls]
         self._hosts_pop_recently = {}
         self.url_count = 0
+        self.max_in_mem = max_in_mem
+        self.last_load = time.time()
         if urls:
             self.url_count += len(urls)
             self.addmany(urls, always=True)
@@ -61,6 +64,7 @@ class UrlPool(object):
         bad_c = 0
         task_c = 0
         done_c = 0
+        self.last_load = time.time()
         self._bad_urls = set()
         for url,state in self._urlindex.RangeIter():
             if is_good_link:
@@ -74,6 +78,7 @@ class UrlPool(object):
                 continue
             if state == self._URL_TASK:
                 task_c += 1
+                self.url_count += 1
                 host = urlparse.urlparse(url).netloc
                 if not host or '.' not in host:
                     print 'index has bad url:', url
@@ -85,12 +90,13 @@ class UrlPool(object):
                     self._pool[host] = set([url])
             if state == self._URL_DONE:
                 done_c += 1
+            if self.url_count > self.max_in_mem:
+                break
         if self._bad_urls and load_bad:
             print 'add bad urls to UrlPool:', len(self._bad_urls)
             for url in self._bad_urls:
                 self.add(url, load_bad_url=True, always=True)
         print '%sgot [%s] tasks not been done from url index%s' %(BRO, task_c, NOR)
-        self.url_count += task_c
         print '%sgot [%s] url been done from url index%s' %(BRO, done_c, NOR)
         print '%sgot [%s] bad urls from url index%s' %(BRO, bad_c, NOR)
 
@@ -154,6 +160,8 @@ class UrlPool(object):
     def pop(self,):
         host = ''
         now = time.time()
+        if now - self.last_load > 3600 and self.url_count < self.max_in_mem:
+            self._load_from_url_index(is_good_link=self.is_good_link)
         for h in self._pool:
             if h not in self._hosts_pop_recently:
                 host = h
