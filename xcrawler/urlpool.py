@@ -158,6 +158,9 @@ class UrlPool(object):
         #print 'adding: %s, url_count: %s' % (url, self.url_count,)
 
     def pop(self,):
+        if not self._pool:
+            print 'no url in the UrlPool'
+            return ''
         host = ''
         now = time.time()
         if now - self.last_load > 3600 and self.url_count < self.max_in_mem:
