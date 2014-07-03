@@ -171,6 +171,8 @@ class UrlPool(object):
                 host = h
                 break
         if not host and self.url_count > 300:
+            if len(self._pool) < 2:
+                return ''
             idx = random.randint(0, len(self._pool)-1)
             host = self._pool.keys()[idx]
         if not host:
