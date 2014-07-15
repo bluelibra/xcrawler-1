@@ -5,6 +5,7 @@
     by veelion@ebuinfo.com
     Copyright © 2013 - 2014 Ebuinfo. All Rights Reserved.
 """
+import gevent
 import time
 import random
 import leveldb
@@ -150,16 +151,19 @@ class UrlPool(object):
         host = urlparse.urlparse(url).netloc
         if not host: return
         if host in self._pool:
-            self._pool[host].add(url)
+            if url not in self._pool[host]:
+                self._pool[host].add(url)
+                self.url_count += 1
         else:
             self._pool[host] = set([url])
-        self.url_count += 1
+            self.url_count += 1
         self._urlindex.Put(url, self._URL_TASK)
         #print 'adding: %s, url_count: %s' % (url, self.url_count,)
 
     def pop(self,):
         if not self._pool:
             print 'no url in the UrlPool'
+            self.url_count = 0
             return ''
         host = ''
         now = time.time()
@@ -173,11 +177,15 @@ class UrlPool(object):
             if span > self.span_of_host:
                 host = h
                 break
-        if not host and self.url_count > 300:
+        if not host and self._pool:
             if len(self._pool) < 2:
-                return ''
-            idx = random.randint(0, len(self._pool)-1)
+                print 'too few host in _pool:', len(self._pool)
+                idx = 0
+                gevent.sleep(3)
+            else:
+                idx = random.randint(0, len(self._pool)-1)
             host = self._pool.keys()[idx]
+            print '\tchoose host:', host
         if not host:
             print 'UrlPool:: no host got, url_count:', self.url_count
             return ''
