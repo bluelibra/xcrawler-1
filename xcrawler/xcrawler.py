@@ -144,14 +144,15 @@ class XCrawler(object):
             #    gevent.sleep(2)
             #    continue
             for i in xrange(self.max_working):
+                if self._workers >= self.max_working:
+                    break
                 url = self.urlpool.pop()
                 if not url:
                     break
                 spawn(self._worker, url)
                 self._workers += 1
                 #print 'start worker: ', self._workers
-                if self._workers >= self.max_working:
-                    break
+
             # wait for workers to start
             gevent.sleep(3)
 
