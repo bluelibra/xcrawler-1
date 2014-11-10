@@ -62,7 +62,7 @@ class XCrawler(object):
     def __init__(self, max_working=20, common_gap=20,
                  urlindex_file="", proxies_file=None,
                  span_of_host=3,
-                 worker_conf_file='',
+                 worker_conf_file='xworkers.conf',
                  load_bad_url=None, logfile=''):
         self.proxypool = ProxyPool(common_gap, proxies_file)
         self.urlpool = UrlPool(urlindex_file,
@@ -120,6 +120,10 @@ class XCrawler(object):
             ns = int(ns)
             self.max_working = ns
         except:
+            import os
+            cmd = 'echo %s > %s' % (self.max_working, self.worker_conf_file)
+            print '!!!!!! ', cmd
+            os.system(cmd)
             pass
         msg = '%sset max_working to [%s]. %sworkers:[%s]%s' % (
             BRO,
