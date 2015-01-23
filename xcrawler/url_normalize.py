@@ -69,6 +69,8 @@ def url_normalize(url, charset='utf-8'):
     if isinstance(url, unicode):
         url = url.encode(charset, 'ignore')
 
+    # unescape '&amp;' to '&'
+    url = url.replace('&amp;', '&')
     # if there is no scheme use http as default scheme
     if url[0] not in ['/', '-'] and ':' not in url[:7]:
         url = 'http://' + url

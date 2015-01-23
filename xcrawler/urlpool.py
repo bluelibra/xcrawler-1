@@ -181,7 +181,7 @@ class UrlPool(object):
             if len(self._pool) < 2:
                 print 'too few host in _pool:', len(self._pool)
                 idx = 0
-                gevent.sleep(3)
+                gevent.sleep(self.span_of_host)
             else:
                 idx = random.randint(0, len(self._pool)-1)
             host = self._pool.keys()[idx]
