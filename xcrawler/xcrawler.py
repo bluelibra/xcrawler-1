@@ -62,12 +62,14 @@ class XCrawler(object):
     def __init__(self, max_working=20, common_gap=20,
                  urlindex_file="", proxies_file=None,
                  span_of_host=3,
+                 max_in_mem=100000,
                  worker_conf_file='xworkers.conf',
                  load_bad_url=None, logfile=''):
         self.proxypool = ProxyPool(common_gap, proxies_file)
         self.urlpool = UrlPool(urlindex_file,
                                load_bad_url=load_bad_url,
                                span_of_host=span_of_host,
+                               max_in_mem=max_in_mem,
                                is_good_link=self.is_good_link)
         self.max_working = max_working
         self.worker_conf_file = worker_conf_file
