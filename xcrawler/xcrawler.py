@@ -81,6 +81,7 @@ class XCrawler(object):
             self.logger = init_file_logger(logfile)
         else:
             self.logger = logging.getLogger('xcrawler')
+        self.failed_urls = {}
 
     def _worker(self, url):
         '''
@@ -111,7 +112,15 @@ class XCrawler(object):
                     #don't try more if no proxy
                     self.urlpool.set_url_bad(url)
                 else:
-                    self.urlpool.add(url)
+                    t = self.failed_urls.get(url, 0)
+                    if t == 0:
+                        self.failed_urls[url] = 1
+                        self.urlpool.add(url)
+                    if t < 3:
+                        self.failed_urls[url] += 1
+                        self.urlpool.add(url)
+                    if t >= 3:
+                        self.urlpool.set_url_bad(url)
         except:
             traceback.print_exc()
         self._workers -= 1
@@ -151,9 +160,11 @@ class XCrawler(object):
             #    continue
             for i in xrange(self.max_working):
                 if self._workers >= self.max_working:
+                    gevent.sleep(10)
                     break
                 url = self.urlpool.pop()
                 if not url:
+                    gevent.sleep(10)
                     break
                 spawn(self._worker, url)
                 self._workers += 1
