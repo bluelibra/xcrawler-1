@@ -1,12 +1,9 @@
-#encoding: UTF-8
+# encoding: UTF-8
 """
     a light framework of crawler with gevent, requests, leveldb
     by veelion@ebuinfo.com
     Copyright © 2013 - 2014 Ebuinfo. All Rights Reserved.
 """
-#import sys
-#if 'threading' in sys.modules:
-#    raise Exception('threading module loaded before patching!')
 import sys
 from gevent import monkey
 
@@ -40,12 +37,13 @@ NOR = '\x1b[0m'
 
 
 def init_file_logger(fname):
-    ## config logging
+    # config logging
     from logging.handlers import TimedRotatingFileHandler
     ch = TimedRotatingFileHandler(fname, when="midnight")
     ch.setLevel(logging.INFO)
     # create formatter
-    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    fmt = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    formatter = logging.Formatter(fmt)
     # add formatter to ch
     ch.setFormatter(formatter)
     logger = logging.getLogger(__name__)
@@ -109,7 +107,7 @@ class XCrawler(object):
                     self.urlpool.add(url)
                 elif (status_code == self._http_exception_code or
                       status_code >= 400):
-                    #don't try more if no proxy
+                    # don't try more if no proxy
                     self.urlpool.set_url_bad(url)
                 else:
                     t = self.failed_urls.get(url, 0)
@@ -129,20 +127,25 @@ class XCrawler(object):
         try:
             ns = open(self.worker_conf_file).read()
             ns = int(ns)
-            self.max_working = ns
+            if ns != self.max_working:
+                changed = True
+                self.max_working = ns
+            else:
+                changed = False
         except:
             import os
             cmd = 'echo %s > %s' % (self.max_working, self.worker_conf_file)
             print '!!!!!! ', cmd
             os.system(cmd)
             pass
-        msg = '%sset max_working to [%s]. %sworkers:[%s]%s' % (
-            BRO,
-            self.max_working,
-            GRE,
-            self._workers,
-            NOR)
-        print msg
+        if changed:
+            msg = '%sset max_working to [%s]. %sworkers:[%s]%s' % (
+                BRO,
+                self.max_working,
+                GRE,
+                self._workers,
+                NOR)
+            print msg
 
     def start(self):
         self.init_urlpool()
@@ -155,9 +158,6 @@ class XCrawler(object):
                 NOR
             )
             self.dynamic_max_working()
-            #if self._workers >= self.max_working:
-            #    gevent.sleep(2)
-            #    continue
             for i in xrange(self.max_working):
                 if self._workers >= self.max_working:
                     gevent.sleep(10)
@@ -168,8 +168,6 @@ class XCrawler(object):
                     break
                 spawn(self._worker, url)
                 self._workers += 1
-                #print 'start worker: ', self._workers
-
             # wait for workers to start
             gevent.sleep(3)
 
@@ -203,15 +201,16 @@ class XCrawler(object):
         '''
         return (self._http_exception_code, '')
 
-
     def downloader(self, url, timeout=20):
         '''
             download url to get html
             re-implement your own if need
         '''
         if not self.headers:
+            ua = ('Mozilla/5.0 (compatible; MSIE 9.0; '
+                  'Windows NT 6.1; Win64; x64; Trident/5.0)')
             headers = {
-                'User-Agent':'Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; Win64; x64; Trident/5.0)',
+                'User-Agent': ua,
             }
         else:
             headers = self.headers
@@ -222,16 +221,18 @@ class XCrawler(object):
         html = ''
         url_real = url
         try:
-            self.logger.debug('%scrawl @[%s]-[%s]%s' % (BLU, time.ctime(), url, NOR))
+            msg = '%scrawl @[%s]-[%s]%s' % (BLU, time.ctime(), url, NOR)
+            self.logger.debug(msg)
             if to_sleep:
                 gevent.sleep(to_sleep)
             if proxy:
                 timeout = 25
-                r = requests.get(url, headers=headers, timeout=timeout, proxies=proxy)
+                r = requests.get(url, headers=headers,
+                                 timeout=timeout, proxies=proxy)
             else:
                 r = requests.get(url, headers=headers, timeout=timeout)
             html = r.content
-            url_real = r.url.encode('utf8') ## get the redirected url
+            url_real = r.url.encode('utf8')  # get the redirected url
             status_code = r.status_code
             if self.is_ip_blocked(r.url, html):
                 html = ''
@@ -240,13 +241,8 @@ class XCrawler(object):
                 print '%sremove proxy: %s, pool size: %s%s' % (
                     BRO, str(proxy), len(self.proxypool._pool), NOR)
         except:
-            traceback.print_exc()
+            # traceback.print_exc()
             html = ''
-        #if status_code == 200:
-        #    self.proxypool.record_proxy_state(proxy, self.proxypool.SUCCESS)
-        #else:
-        #print status_code, url, len(html)
-        #    self.proxypool.record_proxy_state(proxy, self.proxypool.FAILED)
         return (proxy, status_code, html, url_real)
 
     def processor(self, url, html):
@@ -258,4 +254,3 @@ class XCrawler(object):
         '''
         new_urls = []
         return new_urls
-
