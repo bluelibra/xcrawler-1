@@ -99,7 +99,7 @@ class XCrawler(object):
                 if new_urls:
                     self.urlpool.addmany(new_urls)
             else:
-                self.logger.error('%sfailed download: %s, [%s]%s' % (
+                self.logger.info('%sfailed download: %s, [%s]%s' % (
                     RED,
                     url, status_code,
                     NOR,
