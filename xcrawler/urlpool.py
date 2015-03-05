@@ -158,15 +158,16 @@ class UrlPool(object):
             self._pool[host] = set([url])
             self.url_count += 1
         self._urlindex.Put(url, self._URL_TASK)
-        #print 'adding: %s, url_count: %s' % (url, self.url_count,)
+        # print 'adding: %s, url_count: %s' % (url, self.url_count,)
 
     def pop(self,):
+        now = time.time()
         if not self._pool:
             print 'no url in the UrlPool'
             self.url_count = 0
-            return ''
+            if now - self.last_load > 3600 and self.url_count < self.max_in_mem:
+                self._load_from_url_index(is_good_link=self.is_good_link)
         host = ''
-        now = time.time()
         if now - self.last_load > 3600 and self.url_count < self.max_in_mem:
             self._load_from_url_index(is_good_link=self.is_good_link)
         for h in self._pool:
