@@ -71,6 +71,7 @@ DEFAULT_ENCODING_TRANSLATION = {
     'win_874': 'cp874',
     'x_sjis': 'cp932',
     'zh_cn': 'gb18030'
+    'euc-tw': 'gbk',
 }
 
 

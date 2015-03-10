@@ -4,7 +4,7 @@ from urlpool import *
 from xcrawler import XCrawler
 import encoding
 
-__title__ = 'ezmysql'
+__title__ = 'xcrawler'
 __version__ = "1.0"
 __author__ = 'Veelion Chong'
 __license__ = 'MIT License'
