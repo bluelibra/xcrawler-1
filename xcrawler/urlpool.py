@@ -165,7 +165,7 @@ class UrlPool(object):
         if not self._pool:
             print 'no url in the UrlPool'
             self.url_count = 0
-            if now - self.last_load > 3600 and self.url_count < self.max_in_mem:
+            if now - self.last_load > 600 and self.url_count < self.max_in_mem:
                 self._load_from_url_index(is_good_link=self.is_good_link)
         host = ''
         if now - self.last_load > 3600 and self.url_count < self.max_in_mem:
