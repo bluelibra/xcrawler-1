@@ -151,6 +151,7 @@ class XCrawler(object):
         self.init_urlpool()
         spawn(self.main_parallel_task_loop)
         self.dynamic_max_working()
+        self.last_special_crawl = 0
         while 1:
             print '%sworkers left: %s%s' % (
                 GRE,
@@ -163,6 +164,17 @@ class XCrawler(object):
                     gevent.sleep(10)
                     break
                 url = self.urlpool.pop()
+                gap = self.special_crawl_gap(url)
+                skip_special = False
+                if gap > 0:
+                    to_sleep = gap - (time.time() - self.last_special_crawl)
+                    if to_sleep > 0:
+                        gevent.sleep(1)
+                        skip_special = True
+                    else:
+                        self.last_special_crawl = time.time()
+                if skip_special:
+                    continue
                 if not url:
                     gevent.sleep(10)
                     break
@@ -174,6 +186,11 @@ class XCrawler(object):
     def main_parallel_task_loop(self,):
         '''define the task to do in a main-parallel loop'''
         return
+
+    def special_crawl_gap(self, url):
+        ''' re-define if sleep some time for this url
+        '''
+        return 0
 
     def is_ip_blocked(self, url, html):
         '''
