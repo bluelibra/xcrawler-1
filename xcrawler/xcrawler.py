@@ -124,6 +124,7 @@ class XCrawler(object):
         self._workers -= 1
 
     def dynamic_max_working(self,):
+        changed = True
         try:
             ns = open(self.worker_conf_file).read()
             ns = int(ns)
