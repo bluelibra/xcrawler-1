@@ -124,6 +124,7 @@ class XCrawler(object):
         self._workers -= 1
 
     def dynamic_max_working(self,):
+        changed = False
         try:
             ns = open(self.worker_conf_file).read()
             ns = int(ns)
@@ -169,7 +170,9 @@ class XCrawler(object):
                 if gap > 0:
                     to_sleep = gap - (time.time() - self.last_special_crawl)
                     if to_sleep > 0:
-                        gevent.sleep(1)
+                        print '\tskip special:'
+                        time.sleep(1)
+                        self.urlpool.add(url, always=True)
                         skip_special = True
                     else:
                         self.last_special_crawl = time.time()
