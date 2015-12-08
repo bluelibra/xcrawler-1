@@ -17,12 +17,12 @@ class ProxyPool(object):
     '''
     def __init__(self, common_gap=15, proxies_file=''):
         self._proxy_file = proxies_file
-        self._pool = []
+        self._pool = []	# list of proxy dicts loading from proxy_file
         self._load(proxies_file)
         self._common_gap = common_gap
         self._special_gap = {} # {host:gap}
-        self._host_proxy_time = {} # {host: [[index_of_pool, last_use_time]]}
-        self._host_last_proxy_id = {} # {host: last_proxy_index}
+        self._host_proxy_time = {} # {host: [[index_of_pool, last_use_time] * len(self._pool)]}, `pool_index` indicates the proxy in the pool,  `last_use_time` record the time accessing `host`
+        self._host_last_proxy_id = {} # {host: last_proxy_index}, `last_proxy_index` indicates the proxies in the pool used to access `host`s last time.
         self._proxy_failed = {} # {proxy: failed_count}
         self._proxy_failed_threshold = 7
         self.FAILED = 0
@@ -44,10 +44,13 @@ class ProxyPool(object):
             "https": "http://10.10.1.10:1080",
             }
         '''
-        try:
-            lines = open(proxies_file).readlines()
-        except:
-            lines = []
+        # try:
+        #     lines = open(proxies_file).readlines()
+        # except:
+        #     lines = []
+        with open(proxies_file) as pxf:
+            t = pxf.read()
+        lines = t.splitlines()
 
         for l in lines:
             if l.startswith('#'): continue
@@ -76,6 +79,7 @@ class ProxyPool(object):
                             proxy_url,
                             len(self._pool)
                         )
+                        # TODO proxy pool changed, changes should also be made to recording data structures such as _host_proxy_time
                         self._pool.remove(proxy)
                     except:
                         pass
@@ -116,6 +120,7 @@ class ProxyPool(object):
                 proxy_times = []
                 for idx in xrange(len(self._pool)):
                     proxy_times.append([idx,0])
+                # proxy_times = [[idx, 0] for idx in xrange(len(self._pool))]
                 index = random.randint(0, len(self._pool)-1)
                 proxy_times[index][1] = now
                 self._host_proxy_time[host] = proxy_times
@@ -133,7 +138,7 @@ class ProxyPool(object):
                 if to_sleep < 0:
                     to_sleep = 0
             self._host_last_time[host] = now + to_sleep
-        return(proxy, to_sleep)
+        return (proxy, to_sleep)
 
 if __name__ == '__main__':
     urls = [
@@ -164,17 +169,13 @@ if __name__ == '__main__':
         print '\n'
 
     import gevent
-    for url in urls:
-        gevent.spawn(test, url)
+    gthreads = [gevent.spawn(test, url) for url in urls]
+    start = time.time()
+    gevent.joinall(gthreads)
+    finish = time.time()
 
-    gevent.sleep(1)
+    print 'it takes %.6f seconds' % (finish - start)
     #from gevent.pool import Pool
     #gpool = Pool(100)
     #gpool.map(test, urls)
     #gpool.join()
-
-
-
-
-
-

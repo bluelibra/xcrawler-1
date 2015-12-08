@@ -33,7 +33,7 @@ class UrlPool(object):
     _URL_NONE = False
     def __init__(self, urlindex_file="", urls=None,
                  load_bad_url=False,
-                 span_of_host=3,
+                 span_of_host=30,
                  max_in_mem=1024,
                  is_good_link=None):
         if not urlindex_file:
