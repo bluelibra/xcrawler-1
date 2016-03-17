@@ -44,13 +44,10 @@ class ProxyPool(object):
             "https": "http://10.10.1.10:1080",
             }
         '''
-        # try:
-        #     lines = open(proxies_file).readlines()
-        # except:
-        #     lines = []
-        with open(proxies_file) as pxf:
-            t = pxf.read()
-        lines = t.splitlines()
+        try:
+            lines = open(proxies_file).readlines()
+        except:
+            lines = []
 
         for l in lines:
             if l.startswith('#'): continue
