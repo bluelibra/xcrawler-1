@@ -33,8 +33,8 @@ class UrlPool(object):
     _URL_NONE = False
     def __init__(self, urlindex_file="", urls=None,
                  load_bad_url=False,
-                 span_of_host=3,
-                 max_in_mem=100000,
+                 span_of_host=30,
+                 max_in_mem=1024,
                  is_good_link=None):
         if not urlindex_file:
             urlindex_file = 'xcrawler.url.idx'
@@ -67,6 +67,7 @@ class UrlPool(object):
         done_c = 0
         self.last_load = time.time()
         self._bad_urls = set()
+        ul = []
         for url,state in self._urlindex.RangeIter():
             if is_good_link:
                 if not is_good_link(url):
@@ -79,20 +80,30 @@ class UrlPool(object):
                 continue
             if state == self._URL_TASK:
                 task_c += 1
-                self.url_count += 1
+                # self.url_count += 1
                 host = urlparse.urlparse(url).netloc
                 if not host or '.' not in host:
                     print 'index has bad url:', url
-                    self._urlindex.Put(url, self._URL_DONE)
+                    # self._urlindex.Put(url, self._URL_DONE)
+                    ul.append(url)
                     continue
                 if host in self._pool:
-                    self._pool[host].add(url)
+                    if url in self._pool[host]:
+                        pass
+                    else:
+                        self._pool[host].add(url)
+                        self.url_count += 1
                 else:
                     self._pool[host] = set([url])
+                    self.url_count += 1
             if state == self._URL_DONE:
                 done_c += 1
             if self.url_count > self.max_in_mem:
                 break
+        if ul:
+            for url in ul:
+                self._urlindex.Put(url, self._URL_DONE)
+        del ul
         if self._bad_urls and load_bad:
             print 'add bad urls to UrlPool:', len(self._bad_urls)
             for url in self._bad_urls:
@@ -133,6 +144,7 @@ class UrlPool(object):
                     continue
             self.add(url, always=always)
         if urls:
+            # print 'pool url count: ', self.url_count
             print 'pool url count: ', self.url_count
 
     def add(self, url, load_bad_url=False, always=False):
@@ -150,6 +162,10 @@ class UrlPool(object):
                 return
         host = urlparse.urlparse(url).netloc
         if not host: return
+        if self.size() >= self.max_in_mem:
+            print "[ %sVALID URL%s: %s ] Pool overflows now! Put it into index" % (BRO, NOR, url)
+            self._urlindex.Put(url, self._URL_TASK)
+            return
         if host in self._pool:
             if url not in self._pool[host]:
                 self._pool[host].add(url)
@@ -188,7 +204,7 @@ class UrlPool(object):
             host = self._pool.keys()[idx]
             print '\tchoose host:', host
         if not host:
-            print 'UrlPool:: no host got, url_count:', self.url_count
+            print 'UrlPool:: no host got, url count:', self.size()
             return ''
         url = self._pool[host].pop()
         if not self._pool[host]:
