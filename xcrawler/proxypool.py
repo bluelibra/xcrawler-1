@@ -31,7 +31,7 @@ class ProxyPool(object):
         # for no proxy
         self._host_last_time = {} # {host: last_access_time}
 
-    def _load(self, proxies_file):
+    def load(self, proxies_file):
         '''
         each line has two items split by space in proxies_file which like:
             http http://10.10.1.10:3128
