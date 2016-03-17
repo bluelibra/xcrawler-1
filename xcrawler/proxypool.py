@@ -18,7 +18,7 @@ class ProxyPool(object):
     def __init__(self, common_gap=15, proxies_file=''):
         self._proxy_file = proxies_file
         self._pool = []
-        self._load(proxies_file)
+        self.load(proxies_file)
         self._common_gap = common_gap
         self._special_gap = {} # {host:gap}
         self._host_proxy_time = {} # {host: [[index_of_pool, last_use_time]]}
@@ -90,9 +90,6 @@ class ProxyPool(object):
 
     def get(self, url):
         ''' return (proxy, to_sleep_time)'''
-        if self._proxy_file and len(self._pool) < 10:
-            print '!!!! re-load proxy file: %s !!!!' % self._proxy_file
-            self._load(self._proxy_file)
         host = urlparse.urlparse(url).netloc
         proxy = None
         to_sleep = 0
