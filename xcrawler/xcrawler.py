@@ -160,6 +160,7 @@ class XCrawler(object):
                 NOR
             )
             self.dynamic_max_working()
+            all_greenlet = []
             for i in xrange(self.max_working):
                 if self._workers >= self.max_working:
                     gevent.sleep(10)
@@ -181,9 +182,22 @@ class XCrawler(object):
                 if not url:
                     gevent.sleep(10)
                     break
-                spawn(self._worker, url)
+                g = spawn(self._worker, url)
+                all_greenlet.append(g)
+                if i+1 % 50 == 0:
+                    gevent.joinall(all_greenlet)
+                    for g in all_greenlet:
+                        if g.value:
+                            del g.value
+                        del g
                 self._workers += 1
             # wait for workers to start
+            gevent.joinall(all_greenlet)
+            for g in all_greenlet:
+                if g.value:
+                    del g.value
+                del g
+            del all_greenlet
             gevent.sleep(3)
 
     def main_parallel_task_loop(self,):
