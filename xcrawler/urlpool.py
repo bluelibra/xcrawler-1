@@ -135,7 +135,6 @@ class UrlPool(object):
         else:
             self._404[url] = 1
 
-
     def addmany(self, urls, always=False):
         for url in urls:
             if self.is_good_link:
@@ -143,8 +142,7 @@ class UrlPool(object):
                     print 'addmany(): bad url:', url
                     continue
             self.add(url, always=always)
-        if urls:
-            # print 'pool url count: ', self.url_count
+        if self.url_count and self.url_count % 100 == 0:
             print 'pool url count: ', self.url_count
 
     def add(self, url, load_bad_url=False, always=False):
