@@ -146,7 +146,10 @@ class UrlPool(object):
             print 'pool url count: ', self.url_count
 
     def add(self, url, load_bad_url=False, always=False):
-        url = url_normalize(url)
+        try:
+            url = url_normalize(url)
+        except:
+            return
         if always:
             state = self._URL_TASK
         else:
