@@ -167,7 +167,7 @@ class UrlPool(object):
         host = urlparse.urlparse(url).netloc
         if not host: return
         if self.size() >= self.max_in_mem:
-            print "[ %sVALID URL%s: %s ] Pool overflows now! Put it into index" % (BRO, NOR, url)
+            # print "[ %sVALID URL%s: %s ] Pool overflows now! Put it into index" % (BRO, NOR, url)
             self._urlindex.Put(url, self._URL_TASK)
             return
         if host in self._pool:
