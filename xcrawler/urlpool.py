@@ -146,8 +146,6 @@ class UrlPool(object):
                         print 'addmany(): bad url:', url
                         continue
                 self.add(url, always=always)
-        # if self.url_count and self.url_count % 100 == 0:
-        #     print 'pool url count: ', self.url_count
 
     def add(self, url, load_bad_url=False, always=False):
         try:
@@ -181,7 +179,8 @@ class UrlPool(object):
             self._pool[host] = set([url])
             self.url_count += 1
         self._urlindex.Put(url, self._URL_TASK)
-        # print 'adding: %s, url_count: %s' % (url, self.url_count,)
+        if self.url_count % 100 == 0:
+            print GRE, 'pool url count add to: ', self.url_count, NOR
 
     def pop(self,):
         now = time.time()
@@ -209,7 +208,7 @@ class UrlPool(object):
             else:
                 idx = random.randint(0, len(self._pool)-1)
             host = self._pool.keys()[idx]
-            print '\tchoose host:', host
+            # print '\tchoose host:', host
         if not host:
             print 'UrlPool:: no host got, url count:', self.size()
             return ''
@@ -218,6 +217,8 @@ class UrlPool(object):
             del self._pool[host]
         self._hosts_pop_recently[host] = now
         self.url_count -= 1
+        if self.url_count % 100 == 0:
+            print GRE, 'pool url pop to: ', self.url_count, NOR
         return url
 
     def size(self,):
