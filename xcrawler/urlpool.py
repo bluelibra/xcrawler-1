@@ -43,7 +43,6 @@ class UrlPool(object):
             import sys
             print 'no is_good_link function!!!!'
             sys.exit()
-        print is_good_link
         self.is_good_link = is_good_link
         self.span_of_host = span_of_host
         self._urlindex = leveldb.LevelDB(urlindex_file)
@@ -179,8 +178,8 @@ class UrlPool(object):
             self._pool[host] = set([url])
             self.url_count += 1
         self._urlindex.Put(url, self._URL_TASK)
-        if self.url_count % 100 == 0:
-            print GRE, 'pool url count add to: ', self.url_count, NOR
+        # if self.url_count % 100 == 0:
+        #     print GRE, 'pool url count add to: ', self.url_count, NOR
 
     def pop(self,):
         now = time.time()
@@ -217,8 +216,8 @@ class UrlPool(object):
             del self._pool[host]
         self._hosts_pop_recently[host] = now
         self.url_count -= 1
-        if self.url_count % 100 == 0:
-            print GRE, 'pool url pop to: ', self.url_count, NOR
+        # if self.url_count % 100 == 0:
+        #     print GRE, 'pool url pop to: ', self.url_count, NOR
         return url
 
     def size(self,):
