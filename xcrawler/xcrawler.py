@@ -16,6 +16,7 @@ else:
 
 import gevent
 from gevent import spawn
+import gevent.queue
 import requests
 import time
 import logging
@@ -80,6 +81,10 @@ class XCrawler(object):
         else:
             self.logger = logging.getLogger('xcrawler')
         self.failed_urls = {}
+
+        # it is for hight priority url to download,
+        # start() will get url from this queque firstly
+        self.urlqueue = gevent.queue.Queue()
 
     def _worker(self, url):
         '''
@@ -164,7 +169,10 @@ class XCrawler(object):
                 if self._workers >= self.max_working:
                     gevent.sleep(10)
                     break
-                url = self.urlpool.pop()
+                try:
+                    url = self.urlqueue.get_nowait()
+                except:
+                    url = self.urlpool.pop()
                 gap = self.special_crawl_gap(url)
                 skip_special = False
                 if gap > 0:
@@ -179,7 +187,6 @@ class XCrawler(object):
                 if skip_special:
                     continue
                 if not url:
-                    gevent.sleep(10)
                     break
                 spawn(self._worker, url)
                 self._workers += 1
